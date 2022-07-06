@@ -47,6 +47,19 @@ include (src/base/base.cmake)
 include (src/backend/backend.cmake)
 
 
+# TODO: [RISC-V] FIXME
+include(FetchContent)
+FetchContent_Declare(
+    simde
+    GIT_REPOSITORY https://github.com/simd-everywhere/simde.git
+    GIT_TAG 12069d720f43830ae9791e8b0f4c4fa3c88012a0
+)
+FetchContent_MakeAvailable(simde)
+add_library(simde::simde INTERFACE IMPORTED GLOBAL)
+target_include_directories(simde::simde INTERFACE "${simde_SOURCE_DIR}")
+target_compile_definitions(simde::simde INTERFACE SIMDE_ENABLE_NATIVE_ALIASES)
+
+
 set(HEADERS
     "${HEADERS_BASE}"
     "${HEADERS_BASE_HTTP}"
@@ -235,7 +248,7 @@ if (WITH_DEBUG_LOG)
 endif()
 
 add_executable(${CMAKE_PROJECT_NAME} ${HEADERS} ${SOURCES} ${SOURCES_OS} ${HEADERS_CRYPTO} ${SOURCES_CRYPTO} ${SOURCES_SYSLOG} ${TLS_SOURCES} ${XMRIG_ASM_SOURCES})
-target_link_libraries(${CMAKE_PROJECT_NAME} ${XMRIG_ASM_LIBRARY} ${OPENSSL_LIBRARIES} ${UV_LIBRARIES} ${EXTRA_LIBS} ${CPUID_LIB} ${ARGON2_LIBRARY} ${ETHASH_LIBRARY} ${GHOSTRIDER_LIBRARY})
+target_link_libraries(${CMAKE_PROJECT_NAME} ${XMRIG_ASM_LIBRARY} ${OPENSSL_LIBRARIES} ${UV_LIBRARIES} ${EXTRA_LIBS} ${CPUID_LIB} ${ARGON2_LIBRARY} ${ETHASH_LIBRARY} ${GHOSTRIDER_LIBRARY} simde::simde)
 
 if (WIN32)
     add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/bin/WinRing0/WinRing0x64.sys" $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)

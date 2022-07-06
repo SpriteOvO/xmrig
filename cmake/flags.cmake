@@ -29,10 +29,11 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv7-a -mfpu=neon")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv7-a -mfpu=neon -flax-vector-conversions")
     else()
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -maes")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -maes")
+        # TODO: [RISC-V] FIXME later
+        # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -maes")
+        # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -maes")
 
-        add_definitions(/DHAVE_ROTR)
+        # add_definitions(/DHAVE_ROTR)
     endif()
 
     if (WIN32)

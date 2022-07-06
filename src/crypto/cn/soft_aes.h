@@ -29,6 +29,8 @@
 
 #if defined(XMRIG_ARM)
 #   include "crypto/cn/sse2neon.h"
+#elif defined(XMRIG_RISCV)
+#   include <simde/x86/sse.h> // TODO: FIXME fallback
 #elif defined(__GNUC__)
 #   include <x86intrin.h>
 #else

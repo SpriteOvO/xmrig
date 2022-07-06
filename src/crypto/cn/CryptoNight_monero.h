@@ -29,6 +29,8 @@
 #include <fenv.h>
 #include <math.h>
 
+#include <simde/x86/sse.h> // TODO: [RISC-V] FIXME fallback
+
 // VARIANT ALTERATIONS
 #ifndef XMRIG_ARM
 #   define VARIANT1_INIT(part) \

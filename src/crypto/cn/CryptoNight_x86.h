@@ -26,12 +26,16 @@
 #ifndef XMRIG_CRYPTONIGHT_X86_H
 #define XMRIG_CRYPTONIGHT_X86_H
 
-
+#if defined XMRIG_RISCV // TODO: FIXME fallback
+#include <simde/x86/sse.h>
+#include <simde/x86/sse2.h>
+#else
 #ifdef __GNUC__
 #   include <x86intrin.h>
 #else
 #   include <intrin.h>
 #   define __restrict__ __restrict
+#endif
 #endif
 
 
@@ -110,6 +114,7 @@ static inline __m128i sl_xor(__m128i tmp1)
 template<uint8_t rcon>
 static inline void aes_genkey_sub(__m128i* xout0, __m128i* xout2)
 {
+#if 0 // TODO: [RISC-V] https://github.com/simd-everywhere/simde/issues/45
     __m128i xout1 = _mm_aeskeygenassist_si128(*xout2, rcon);
     xout1  = _mm_shuffle_epi32(xout1, 0xFF); // see PSHUFD, set all elems to 4th elem
     *xout0 = sl_xor(*xout0);
@@ -118,6 +123,7 @@ static inline void aes_genkey_sub(__m128i* xout0, __m128i* xout2)
     xout1  = _mm_shuffle_epi32(xout1, 0xAA); // see PSHUFD, set all elems to 3rd elem
     *xout2 = sl_xor(*xout2);
     *xout2 = _mm_xor_si128(*xout2, xout1);
+#endif
 }
 
 
@@ -248,6 +254,7 @@ NOINLINE void aes_round<true>(__m128i key, __m128i* x0, __m128i* x1, __m128i* x2
 template<>
 FORCEINLINE void aes_round<false>(__m128i key, __m128i* x0, __m128i* x1, __m128i* x2, __m128i* x3, __m128i* x4, __m128i* x5, __m128i* x6, __m128i* x7)
 {
+#if 0 // TODO: [RISC-V] https://github.com/simd-everywhere/simde/issues/45
     *x0 = _mm_aesenc_si128(*x0, key);
     *x1 = _mm_aesenc_si128(*x1, key);
     *x2 = _mm_aesenc_si128(*x2, key);
@@ -256,6 +263,7 @@ FORCEINLINE void aes_round<false>(__m128i key, __m128i* x0, __m128i* x1, __m128i
     *x5 = _mm_aesenc_si128(*x5, key);
     *x6 = _mm_aesenc_si128(*x6, key);
     *x7 = _mm_aesenc_si128(*x7, key);
+#endif
 }
 
 inline void mix_and_propagate(__m128i& x0, __m128i& x1, __m128i& x2, __m128i& x3, __m128i& x4, __m128i& x5, __m128i& x6, __m128i& x7)
@@ -747,7 +755,9 @@ inline void cryptonight_single_hash(const uint8_t *__restrict__ input, size_t si
             }
         }
         else {
+#if 0 // TODO: [RISC-V] https://github.com/simd-everywhere/simde/issues/45
             cx = _mm_aesenc_si128(cx, ax0);
+#endif
         }
 
         if (BASE == Algorithm::CN_1 || BASE == Algorithm::CN_2) {
@@ -1364,8 +1374,10 @@ inline void cryptonight_double_hash(const uint8_t *__restrict__ input, size_t si
             }
         }
         else {
+#if 0 // TODO: [RISC-V] https://github.com/simd-everywhere/simde/issues/45
             cx0 = _mm_aesenc_si128(cx0, ax0);
             cx1 = _mm_aesenc_si128(cx1, ax1);
+#endif
         }
 
         if (BASE == Algorithm::CN_1 || BASE == Algorithm::CN_2) {
@@ -1619,7 +1631,8 @@ static NOINLINE void cryptonight_quad_hash_gr_sse41(const uint8_t* __restrict__ 
     else if (SOFT_AES) {                                                                \
         c = soft_aesenc(&c, a, (const uint32_t*)saes_table);                            \
     } else {                                                                            \
-        c = _mm_aesenc_si128(c, a);                                                     \
+        /* TODO: [RISC-V] https://github.com/simd-everywhere/simde/issues/45 */         \
+        /* c = _mm_aesenc_si128(c, a); */                                               \
     }                                                                                   \
                                                                                         \
     if (BASE == Algorithm::CN_1 || BASE == Algorithm::CN_2) {                           \
